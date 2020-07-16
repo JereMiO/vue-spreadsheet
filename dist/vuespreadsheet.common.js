@@ -6011,12 +6011,12 @@ if (typeof window !== 'undefined') {
 // Indicate to webpack that this file can be concatenated
 /* harmony default export */ var setPublicPath = (null);
 
-// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"725e33d8-vue-loader-template"}!./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/components/VueTable.vue?vue&type=template&id=66f831ea&
+// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"725e33d8-vue-loader-template"}!./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/components/VueTable.vue?vue&type=template&id=6d8362d8&
 var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{ref:(_vm.customTable + "-vueTable"),staticClass:"vue-spreadsheet",style:(_vm.styleWrapVueTable),on:{"scroll":_vm.scrollFunction}},[_vm._t("header"),_c('table',{ref:(_vm.customTable + "-table"),staticClass:"vue_table",attrs:{"oncontextmenu":"return false;"}},[_c('vue-thead',{ref:(_vm.customTable + "-vueThead"),attrs:{"disable-sort-thead":_vm.disableSortThead,"header-top":_vm.headerTop,"headers":_vm.headers,"sort-header":_vm.customOptions.sortHeader,"submenu-status-thead":_vm.submenuStatusThead,"submenu-thead":_vm.submenuThead,"tbody-index":_vm.customOptions.tbodyIndex,"tbody-checkbox":_vm.customOptions.tbodyCheckbox,"thead-highlight":_vm.highlight.thead,"current-table":_vm.customTable},on:{"handle-up-drag-size-header":_vm.handleUpDragSizeHeader,"handle-up-drag-to-fill":_vm.handleUpDragToFill,"submenu-enable":_vm.enableSubmenu,"thead-checked-all-callback":_vm.callbackCheckedAll,"thead-submenu-click-callback":_vm.callbackSubmenuThead,"thead-td-context-menu":_vm.handleTheadContextMenu,"thead-td-sort":_vm.callbackSort}}),(_vm.loading)?_vm._t("loader"):_vm._e(),(!_vm.loading)?_c('vue-tbody',{ref:(_vm.customTable + "-vueTbody"),attrs:{"tbody-data":_vm.tbodyData,"headers":_vm.headers,"tbody-checkbox":_vm.customOptions.tbodyCheckbox,"tbody-index":_vm.customOptions.tbodyIndex,"trad":_vm.customOptions.trad,"disable-cells":_vm.disableCells,"submenu-tbody":_vm.submenuTbody,"filtered-list":_vm.filteredList,"submenu-status-tbody":_vm.submenuStatusTbody,"tbody-highlight":_vm.highlight.tbody,"current-table":_vm.customTable},on:{"handle-to-calculate-position":_vm.calculPosition,"handle-to-open-select":_vm.enableSelect,"submenu-enable":_vm.enableSubmenu,"tbody-checked-row":_vm.checkedRow,"tbody-down-dragtofill":_vm.handleDownDragToFill,"tbody-handle-search-input-select":_vm.handleSearchInputSelect,"tbody-handle-set-oldvalue":_vm.setOldValueOnInputSelect,"tbody-input-change":_vm.handleTbodyInputChange,"tbody-input-keydown":_vm.handleTbodyInputKeydown,"tbody-move-dragtofill":_vm.handleMoveDragToFill,"tbody-select-change":_vm.handleTbodySelectChange,"tbody-select-multiple-cell":_vm.handleSelectMultipleCell,"tbody-submenu-click-callback":_vm.callbackSubmenuTbody,"tbody-td-click":_vm.handleTbodyTdClick,"tbody-td-context-menu":_vm.handleTBodyContextMenu,"tbody-td-double-click":_vm.handleTbodyTdDoubleClick,"tbody-up-dragtofill":_vm.handleUpDragToFill}}):_vm._e()],2)],2)}
 var staticRenderFns = []
 
 
-// CONCATENATED MODULE: ./src/components/VueTable.vue?vue&type=template&id=66f831ea&
+// CONCATENATED MODULE: ./src/components/VueTable.vue?vue&type=template&id=6d8362d8&
 
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.array.concat.js
 var es_array_concat = __webpack_require__("99af");
@@ -6241,14 +6241,14 @@ var copyPaste = {
     });
   },
   methods: {
-    disabledEvent: function disabledEvent(col, header) {
-      if (col.disabled === undefined) {
+    disabledEvent: function disabledEvent(cell, header) {
+      if (cell.disabled === undefined) {
         return this.disableCells.some(function (x) {
           return x === header;
         });
       }
 
-      return col.disabled;
+      return cell.disabled;
     },
     copyStoreData: function copyStoreData(params) {
       var tbodyData = lodashClonedeep(this.tbodyData);
@@ -6319,10 +6319,11 @@ var copyPaste = {
     },
     pasteReplaceData: function pasteReplaceData() {
       var maxRow = this.tbodyData.length;
+      var cell = this.tbodyData[this.selectedCell.row][this.selectedCell.header];
       this.cleanPropertyOnCell("paste"); // copy / paste one cell || disable on disabled cell
 
-      if (this.storeCopyDatas[0].value && !this.copyMultipleCell && !this.selectedMultipleCell && !this.eventDrag && !this.disabledEvent(this.selectedCell.col, this.selectedCell.header)) {
-        var duplicate = this.tbodyData[this.selectedCell.row][this.selectedCell.header].duplicate;
+      if (this.storeCopyDatas[0].value && !this.copyMultipleCell && !this.selectedMultipleCell && !this.eventDrag && !this.disabledEvent(cell, this.selectedCell.header)) {
+        var duplicate = cell.duplicate;
         this.storeCopyDatas[0].duplicate = duplicate; // this.storeCopyDatas[0].active = true;
         // create newCopyData
 
@@ -6333,8 +6334,9 @@ var copyPaste = {
 
         this.tbodyData[this.selectedCell.row][this.selectedCell.header] = _newCopyData[0];
         // callback changeData
-        this.changeData(this.selectedCell.row, this.selectedCell.header); // disable on disabled cell
-      } else if (!this.disabledEvent(this.selectedCell.col, this.selectedCell.header) && this.selectedCoordCells) {
+        this.changeData(this.selectedCell.row, this.selectedCell.header);
+        this.$emit("tbody-paste-data", this.selectedCell.row, this.selectedCell.header, newCopyData[0]); // disable on disabled cell
+      } else if (!this.disabledEvent(cell, this.selectedCell.header) && this.selectedCoordCells) {
         // if paste in multiple selection
         var conditionPasteToMultipleSelection = this.selectedCoordCopyCells !== null && this.selectedCoordCells !== this.selectedCoordCopyCells; // new paste data
 
@@ -6375,12 +6377,16 @@ var copyPaste = {
             if (_newCopyData2[0][header]) {
               _newCopyData2[0][header].duplicate = _duplicate;
               this.tbodyData[rowMin][header] = _newCopyData2[0][header]; // multiple cell
+
+              this.$emit("tbody-paste-data", rowMin, header, _newCopyData2[0][header]);
             } else {
               _newCopyData2[0].duplicate = _duplicate;
 
               var _newCopyData3 = _slicedToArray(_newCopyData2, 1);
 
               this.tbodyData[rowMin][header] = _newCopyData3[0];
+              // one cell
+              this.$emit("tbody-paste-data", rowMin, header, _newCopyData2);
             }
 
             this.changeData(rowMin, header);
@@ -6436,6 +6442,7 @@ var copyPaste = {
 
               this.tbodyData[rowMin][currentHeader] = _newCopyData4[0];
               this.changeData(rowMin, currentHeader);
+              this.$emit("tbody-paste-data", rowMin, currentHeader, _newCopyData2[0]);
             } // ▭▭▭ => ▭ / ▭▭▭
 
 
@@ -6520,6 +6527,7 @@ var copyPaste = {
       }
 
       this.tbodyData[incrementRow][currentHeader] = copyData;
+      this.$emit("tbody-paste-data", incrementRow, header, copyData);
       this.changeData(incrementRow, currentHeader);
     },
     modifyMultipleCell: function modifyMultipleCell(params) {
@@ -6870,6 +6878,20 @@ var es_array_find = __webpack_require__("7db0");
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.number.constructor.js
 var es_number_constructor = __webpack_require__("a9e3");
 
+// CONCATENATED MODULE: ./src/helpers.js
+/* eslint-disable import/prefer-default-export */
+function cleanProperty(element) {
+  var style = element.style;
+
+  if (!style) {
+    style = {};
+  }
+
+  style.setProperty("--rectangleWidth", "100%");
+  style.setProperty("--rectangleHeight", "40px");
+  style.setProperty("--rectangleTop", 0);
+  style.setProperty("--rectangleBottom", 0);
+}
 // CONCATENATED MODULE: ./src/mixins/VueTable/moveOnTable.js
 
 
@@ -6883,7 +6905,9 @@ var es_number_constructor = __webpack_require__("a9e3");
 
 
 
-// eslint-disable-next-line import/prefer-default-export
+
+/* eslint-disable import/prefer-default-export */
+
 var moveOnTable_moveOnTable = {
   data: function data() {
     return {
@@ -7298,6 +7322,10 @@ var moveOnTable_moveOnTable = {
       this.changeData(rowIndex, header);
     },
     updateSelectedCell: function updateSelectedCell(header, rowIndex, colIndex) {
+      var td = this.$refs["".concat(this.customTable, "-vueTbody")].$refs["td-".concat(this.customTable, "-").concat(colIndex, "-").concat(rowIndex)][0];
+      this.tbodyData[rowIndex][header].stateCopy = false;
+      cleanProperty(td);
+
       if (!this.setFirstCell) {
         this.$set(this.tbodyData[rowIndex][header], "rectangleSelection", true);
         this.setFirstCell = true;
