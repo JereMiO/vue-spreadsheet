@@ -2,7 +2,7 @@
   "name": "vuejs-spreadsheet",
   "version": "2.1.0",
   "description": "An easier Spreadsheet in Vue",
-  "main": "dist/vuespreadsheet.common.js",
+  "main": "src/index.js",
   "author": "Joffrey Berrier <joffrey.berrier@gmail.com>",
   "repository": {
     "url": "git+https://github.com/joffreyBerrier/vue-spreadsheet.git",

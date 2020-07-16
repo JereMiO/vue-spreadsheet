@@ -70,14 +70,14 @@
 </template>
 
 <script type="text/javascript">
-import { copyPaste } from "@/mixins/VueTable/copyPaste";
-import { dragToFill } from "@/mixins/VueTable/dragToFill";
-import { callback } from "@/mixins/VueTable/callback";
-import { handleTBody } from "@/mixins/VueTable/handleTBody";
-import { handleTHead } from "@/mixins/VueTable/handleTHead";
-import { moveOnTable } from "@/mixins/VueTable/moveOnTable";
-import { scrollOnTable } from "@/mixins/VueTable/scrollOnTable";
-import { undo } from "@/mixins/VueTable/undo";
+import { copyPaste } from "../mixins/VueTable/copyPaste";
+import { dragToFill } from "../mixins/VueTable/dragToFill";
+import { callback } from "../mixins/VueTable/callback";
+import { handleTBody } from "../mixins/VueTable/handleTBody";
+import { handleTHead } from "../mixins/VueTable/handleTHead";
+import { moveOnTable } from "../mixins/VueTable/moveOnTable";
+import { scrollOnTable } from "../mixins/VueTable/scrollOnTable";
+import { undo } from "../mixins/VueTable/undo";
 
 import VueThead from "./Thead.vue";
 import VueTbody from "./TBody/TBody.vue";
