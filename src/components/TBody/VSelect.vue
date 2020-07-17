@@ -109,7 +109,10 @@ export default {
         this.searchInput = "";
         const activeOption = cell.selectOptions.find((opt) => opt.value === cell.value);
 
-        activeOption.active = true;
+        if (activeOption) {
+          activeOption.active = true;
+        }
+
         this.$emit("tbody-handle-to-open-select", event, header, cell, rowIndex, colIndex);
       }
     },
