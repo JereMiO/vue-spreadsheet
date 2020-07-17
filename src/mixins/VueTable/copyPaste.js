@@ -27,12 +27,12 @@ export const copyPaste = {
     });
   },
   methods: {
-    disabledEvent(col, header) {
-      if (col.disabled === undefined) {
+    disabledEvent(cell, header) {
+      if (cell.disabled === undefined) {
         return this.disableCells.some((x) => x === header);
       }
 
-      return col.disabled;
+      return cell.disabled;
     },
     copyStoreData(params) {
       const tbodyData = lodashClonedeep(this.tbodyData);
@@ -119,6 +119,7 @@ export const copyPaste = {
     },
     pasteReplaceData() {
       const maxRow = this.tbodyData.length;
+      const cell = this.tbodyData[this.selectedCell.row][this.selectedCell.header];
 
       this.cleanPropertyOnCell("paste");
 
@@ -128,9 +129,9 @@ export const copyPaste = {
         !this.copyMultipleCell &&
         !this.selectedMultipleCell &&
         !this.eventDrag &&
-        !this.disabledEvent(this.selectedCell.col, this.selectedCell.header)
+        !this.disabledEvent(cell, this.selectedCell.header)
       ) {
-        const { duplicate } = this.tbodyData[this.selectedCell.row][this.selectedCell.header];
+        const { duplicate } = cell;
 
         this.storeCopyDatas[0].duplicate = duplicate;
         // this.storeCopyDatas[0].active = true;
@@ -142,11 +143,14 @@ export const copyPaste = {
         [this.tbodyData[this.selectedCell.row][this.selectedCell.header]] = newCopyData;
         // callback changeData
         this.changeData(this.selectedCell.row, this.selectedCell.header);
+        this.$emit(
+          "tbody-paste-data",
+          this.selectedCell.row,
+          this.selectedCell.header,
+          newCopyData[0]
+        );
         // disable on disabled cell
-      } else if (
-        !this.disabledEvent(this.selectedCell.col, this.selectedCell.header) &&
-        this.selectedCoordCells
-      ) {
+      } else if (!this.disabledEvent(cell, this.selectedCell.header) && this.selectedCoordCells) {
         // if paste in multiple selection
         const conditionPasteToMultipleSelection =
           this.selectedCoordCopyCells !== null &&
@@ -205,9 +209,11 @@ export const copyPaste = {
             if (newCopyData[0][header]) {
               newCopyData[0][header].duplicate = duplicate;
               this.tbodyData[rowMin][header] = newCopyData[0][header]; // multiple cell
+              this.$emit("tbody-paste-data", rowMin, header, newCopyData[0][header]);
             } else {
               newCopyData[0].duplicate = duplicate;
               [this.tbodyData[rowMin][header]] = newCopyData; // one cell
+              this.$emit("tbody-paste-data", rowMin, header, newCopyData);
             }
 
             this.changeData(rowMin, header);
@@ -273,6 +279,7 @@ export const copyPaste = {
 
               [this.tbodyData[rowMin][currentHeader]] = newCopyData;
               this.changeData(rowMin, currentHeader);
+              this.$emit("tbody-paste-data", rowMin, currentHeader, newCopyData[0]);
             }
 
             // ▭▭▭ => ▭ / ▭▭▭
@@ -368,6 +375,7 @@ export const copyPaste = {
       }
 
       this.tbodyData[incrementRow][currentHeader] = copyData;
+      this.$emit("tbody-paste-data", incrementRow, header, copyData);
       this.changeData(incrementRow, currentHeader);
     },
     modifyMultipleCell(params) {
