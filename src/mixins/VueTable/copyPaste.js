@@ -131,24 +131,16 @@ export const copyPaste = {
         !this.eventDrag &&
         !this.disabledEvent(cell, this.selectedCell.header)
       ) {
-        const { duplicate } = cell;
+        // get the copied cell as new object
+        const [copiedData] = lodashClonedeep(this.storeCopyDatas);
 
-        this.storeCopyDatas[0].duplicate = duplicate;
-        // this.storeCopyDatas[0].active = true;
-
-        // create newCopyData
-        const newCopyData = lodashClonedeep(this.storeCopyDatas);
-
-        newCopyData[0].active = true;
-        [this.tbodyData[this.selectedCell.row][this.selectedCell.header]] = newCopyData;
+        // Keep reference of previous cell object
+        copiedData.duplicate = cell;
+        copiedData.active = true;
+        this.tbodyData[this.selectedCell.row][this.selectedCell.header] = copiedData;
         // callback changeData
+        this.$emit("tbody-paste-data", this.selectedCell.row, this.selectedCell.header, copiedData);
         this.changeData(this.selectedCell.row, this.selectedCell.header);
-        this.$emit(
-          "tbody-paste-data",
-          this.selectedCell.row,
-          this.selectedCell.header,
-          newCopyData[0]
-        );
         // disable on disabled cell
       } else if (!this.disabledEvent(cell, this.selectedCell.header) && this.selectedCoordCells) {
         // if paste in multiple selection
@@ -278,8 +270,8 @@ export const copyPaste = {
               newCopyData[0].duplicate = this.tbodyData[rowMin][currentHeader].duplicate;
 
               [this.tbodyData[rowMin][currentHeader]] = newCopyData;
-              this.changeData(rowMin, currentHeader);
               this.$emit("tbody-paste-data", rowMin, currentHeader, newCopyData[0]);
+              this.changeData(rowMin, currentHeader);
             }
 
             // ▭▭▭ => ▭ / ▭▭▭
@@ -370,12 +362,10 @@ export const copyPaste = {
         copyData = newCopyData[col];
       }
 
-      if (this.tbodyData[incrementRow][currentHeader]?.duplicate) {
-        this.$set(copyData, "duplicate", this.tbodyData[incrementRow][currentHeader].duplicate);
-      }
+      copyData.duplicate = this.tbodyData[incrementRow][currentHeader];
 
       this.tbodyData[incrementRow][currentHeader] = copyData;
-      this.$emit("tbody-paste-data", incrementRow, header, copyData);
+      this.$emit("tbody-paste-data", incrementRow, currentHeader, copyData);
       this.changeData(incrementRow, currentHeader);
     },
     modifyMultipleCell(params) {
