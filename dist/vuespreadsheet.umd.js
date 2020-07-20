@@ -6372,19 +6372,18 @@ var copyPaste = {
       this.cleanPropertyOnCell("paste"); // copy / paste one cell || disable on disabled cell
 
       if (this.storeCopyDatas[0].value && !this.copyMultipleCell && !this.selectedMultipleCell && !this.eventDrag && !this.disabledEvent(cell, this.selectedCell.header)) {
-        var duplicate = cell.duplicate;
-        this.storeCopyDatas[0].duplicate = duplicate; // this.storeCopyDatas[0].active = true;
-        // create newCopyData
+        // get the copied cell as new object
+        var _lodashClonedeep = lodashClonedeep(this.storeCopyDatas),
+            _lodashClonedeep2 = _slicedToArray(_lodashClonedeep, 1),
+            copiedData = _lodashClonedeep2[0]; // Keep reference of previous cell object
 
-        var newCopyData = lodashClonedeep(this.storeCopyDatas);
-        newCopyData[0].active = true;
 
-        var _newCopyData = _slicedToArray(newCopyData, 1);
+        copiedData.duplicate = cell;
+        copiedData.active = true;
+        this.tbodyData[this.selectedCell.row][this.selectedCell.header] = copiedData; // callback changeData
 
-        this.tbodyData[this.selectedCell.row][this.selectedCell.header] = _newCopyData[0];
-        // callback changeData
-        this.changeData(this.selectedCell.row, this.selectedCell.header);
-        this.$emit("tbody-paste-data", this.selectedCell.row, this.selectedCell.header, newCopyData[0]); // disable on disabled cell
+        this.$emit("tbody-paste-data", this.selectedCell.row, this.selectedCell.header, copiedData);
+        this.changeData(this.selectedCell.row, this.selectedCell.header); // disable on disabled cell
       } else if (!this.disabledEvent(cell, this.selectedCell.header) && this.selectedCoordCells) {
         // if paste in multiple selection
         var conditionPasteToMultipleSelection = this.selectedCoordCopyCells !== null && this.selectedCoordCells !== this.selectedCoordCopyCells; // new paste data
@@ -6416,26 +6415,25 @@ var copyPaste = {
 
         while (rowMin <= rowMax) {
           var header = this.headerKeys[colMin];
-
-          var _newCopyData2 = lodashClonedeep(this.storeCopyDatas);
+          var newCopyData = lodashClonedeep(this.storeCopyDatas);
 
           if (this.eventDrag) {
             // Drag To Fill
-            var _duplicate = this.tbodyData[rowMin][header].duplicate;
+            var duplicate = this.tbodyData[rowMin][header].duplicate;
 
-            if (_newCopyData2[0][header]) {
-              _newCopyData2[0][header].duplicate = _duplicate;
-              this.tbodyData[rowMin][header] = _newCopyData2[0][header]; // multiple cell
+            if (newCopyData[0][header]) {
+              newCopyData[0][header].duplicate = duplicate;
+              this.tbodyData[rowMin][header] = newCopyData[0][header]; // multiple cell
 
-              this.$emit("tbody-paste-data", rowMin, header, _newCopyData2[0][header]);
+              this.$emit("tbody-paste-data", rowMin, header, newCopyData[0][header]);
             } else {
-              _newCopyData2[0].duplicate = _duplicate;
+              newCopyData[0].duplicate = duplicate;
 
-              var _newCopyData3 = _slicedToArray(_newCopyData2, 1);
+              var _newCopyData = _slicedToArray(newCopyData, 1);
 
-              this.tbodyData[rowMin][header] = _newCopyData3[0];
+              this.tbodyData[rowMin][header] = _newCopyData[0];
               // one cell
-              this.$emit("tbody-paste-data", rowMin, header, _newCopyData2);
+              this.$emit("tbody-paste-data", rowMin, header, newCopyData);
             }
 
             this.changeData(rowMin, header);
@@ -6450,16 +6448,15 @@ var copyPaste = {
 
             var currentHeader = this.headerKeys[incrementCol]; // multiple col to multiple col
 
-            var colsToCols = Object.values(_newCopyData2[0]).length === 1; // one cell to multipleCell
+            var colsToCols = Object.values(newCopyData[0]).length === 1; // one cell to multipleCell
 
-            var cellToCells = _newCopyData2.length === 1 && Object.values(_newCopyData2).length === 1 && _newCopyData2[0].type; // 1 row to 1 row
+            var cellToCells = newCopyData.length === 1 && Object.values(newCopyData).length === 1 && newCopyData[0].type; // 1 row to 1 row
 
+            var rowToRow = newCopyData.length === 1 && Object.values(newCopyData[0]).length > 1 && !newCopyData[0].type && this.selectedCoordCells.rowStart === this.selectedCoordCells.rowEnd; // 1 row & multiple cols => to multiple row & cols
 
-            var rowToRow = _newCopyData2.length === 1 && Object.values(_newCopyData2[0]).length > 1 && !_newCopyData2[0].type && this.selectedCoordCells.rowStart === this.selectedCoordCells.rowEnd; // 1 row & multiple cols => to multiple row & cols
+            var rowColsToRowsCols = newCopyData.length === 1 && Object.values(newCopyData[0]).length > 1 && this.selectedCoordCells.rowStart < this.selectedCoordCells.rowEnd && this.selectedCoordCells.colStart !== this.selectedCoordCells.colEnd; // multiple col / row to multiple col / row
 
-            var rowColsToRowsCols = _newCopyData2.length === 1 && Object.values(_newCopyData2[0]).length > 1 && this.selectedCoordCells.rowStart < this.selectedCoordCells.rowEnd && this.selectedCoordCells.colStart !== this.selectedCoordCells.colEnd; // multiple col / row to multiple col / row
-
-            var rowsColsToRowsCols = _newCopyData2.length > 1 && Object.values(_newCopyData2[0]).length > 1; // ▭ => ▭ / ▭
+            var rowsColsToRowsCols = newCopyData.length > 1 && Object.values(newCopyData[0]).length > 1; // ▭ => ▭ / ▭
             // ▭ =>   / ▭
 
             if (colsToCols) {
@@ -6485,13 +6482,13 @@ var copyPaste = {
 
             } else if (cellToCells) {
               currentHeader = this.selectedCell.header;
-              _newCopyData2[0].duplicate = this.tbodyData[rowMin][currentHeader].duplicate;
+              newCopyData[0].duplicate = this.tbodyData[rowMin][currentHeader].duplicate;
 
-              var _newCopyData4 = _slicedToArray(_newCopyData2, 1);
+              var _newCopyData2 = _slicedToArray(newCopyData, 1);
 
-              this.tbodyData[rowMin][currentHeader] = _newCopyData4[0];
+              this.tbodyData[rowMin][currentHeader] = _newCopyData2[0];
+              this.$emit("tbody-paste-data", rowMin, currentHeader, newCopyData[0]);
               this.changeData(rowMin, currentHeader);
-              this.$emit("tbody-paste-data", rowMin, currentHeader, _newCopyData2[0]);
             } // ▭▭▭ => ▭ / ▭▭▭
 
 
@@ -6504,7 +6501,7 @@ var copyPaste = {
 
             if (rowsColsToRowsCols) {
               if (this.tbodyData[incrementRow][currentHeader]) {
-                _newCopyData2[row][header].duplicate = this.tbodyData[incrementRow][currentHeader].duplicate;
+                newCopyData[row][header].duplicate = this.tbodyData[incrementRow][currentHeader].duplicate;
               }
 
               this.replacePasteData(row, header, incrementRow, currentHeader);
@@ -6559,8 +6556,6 @@ var copyPaste = {
       element.style.setProperty("--rectangleBottom", 0);
     },
     replacePasteData: function replacePasteData(col, header, incrementRow, currentHeader) {
-      var _this$tbodyData$incre;
-
       var newCopyData = lodashClonedeep(this.storeCopyDatas);
       var copyData; // If copyMultipleCell, newCopyData => [{header: {}}]
 
@@ -6571,12 +6566,9 @@ var copyPaste = {
         copyData = newCopyData[col];
       }
 
-      if ((_this$tbodyData$incre = this.tbodyData[incrementRow][currentHeader]) === null || _this$tbodyData$incre === void 0 ? void 0 : _this$tbodyData$incre.duplicate) {
-        this.$set(copyData, "duplicate", this.tbodyData[incrementRow][currentHeader].duplicate);
-      }
-
+      copyData.duplicate = this.tbodyData[incrementRow][currentHeader];
       this.tbodyData[incrementRow][currentHeader] = copyData;
-      this.$emit("tbody-paste-data", incrementRow, header, copyData);
+      this.$emit("tbody-paste-data", incrementRow, currentHeader, copyData);
       this.changeData(incrementRow, currentHeader);
     },
     modifyMultipleCell: function modifyMultipleCell(params) {
